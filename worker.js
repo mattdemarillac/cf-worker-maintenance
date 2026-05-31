@@ -46,8 +46,8 @@ const MAINTENANCE_HTML = `<!DOCTYPE html>
     <div class="icon">🔧</div>
     <h1>Scheduled Maintenance</h1>
     <p>We're upgrading our servers to serve you better.</p>
-    <p>We'll be back shortly — thanks for your patience.</p>
-    <span class="eta">Expected back: check back in ~30 minutes</span>
+    <p>We'll be back shortly. Thanks for your patience.</p>
+    <span class="eta">Expected time: check back in ~30 minutes</span>
   </div>
 </body>
 </html>`;
