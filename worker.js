@@ -3,7 +3,7 @@
 // main = "worker.js"
 
 // ── CONFIG ────────────────────────────────────────────────
-const MAINTENANCE_ACTIVE = true; // flip to true when upgrading
+const MAINTENANCE_ACTIVE = false; // flip to true when upgrading
 
 const MAINTENANCE_HTML = `<!DOCTYPE html>
 <html lang="en">
