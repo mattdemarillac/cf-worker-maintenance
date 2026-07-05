@@ -4,7 +4,7 @@
 //
 // [[kv_namespaces]]
 // binding = "OOBJ"
-// id = "..."
+// id = "f465847650734ea9b2bb986f0bc23628"
 
 // ── CONFIG ────────────────────────────────────────────────
 const MAINTENANCE_ACTIVE = false; // flip to true when upgrading
