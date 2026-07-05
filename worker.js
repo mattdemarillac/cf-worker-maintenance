@@ -1,9 +1,15 @@
 // wrangler.toml:
 // name = "maintenance-page"
 // main = "worker.js"
+//
+// [[kv_namespaces]]
+// binding = "OOBJ"
+// id = "..."
 
 // ── CONFIG ────────────────────────────────────────────────
 const MAINTENANCE_ACTIVE = false; // flip to true when upgrading
+const ALERT_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes between alert emails
+const ALERT_STATUS_THRESHOLD = 500; // alert on this status code or higher
 
 const MAINTENANCE_HTML = `<!DOCTYPE html>
 <html lang="en">
@@ -54,9 +60,15 @@ const MAINTENANCE_HTML = `<!DOCTYPE html>
 // ─────────────────────────────────────────────────────────
 
 export default {
-    async fetch(request) {
+    async fetch(request, env, ctx) {
         if (!MAINTENANCE_ACTIVE) {
-            return fetch(request); // pass through normally
+            const response = await fetch(request); // pass through normally
+
+            if (response.status >= ALERT_STATUS_THRESHOLD) {
+                ctx.waitUntil(handleErrorAlert(env, response.status, request.url));
+            }
+
+            return response;
         }
 
         return new Response(MAINTENANCE_HTML, {
@@ -69,3 +81,39 @@ export default {
         });
     },
 };
+
+async function handleErrorAlert(env, status, url) {
+    const key = "last-alert";
+
+    const lastSent = await env.OOBJ.get(key);
+    const now = Date.now();
+
+    if (lastSent && now - Number(lastSent) < ALERT_COOLDOWN_MS) {
+        return; // still in cooldown, skip sending another email
+    }
+
+    // Record before sending, to avoid duplicate sends on near-simultaneous requests
+    await env.OOBJ.put(key, String(now));
+
+    await sendAlertEmail(env, status, url);
+}
+
+async function sendAlertEmail(env, status, url) {
+    const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${env.RESEND_API_KEY}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            from: "info@outofbody.com.au",
+            to: "info@outofbody.com.au",
+            subject: `Alert: ${status} error on ${url}`,
+            text: `Got a ${status} response for ${url} at ${new Date().toISOString()}`,
+        }),
+    });
+
+    if (!res.ok) {
+        console.error("Failed to send alert email:", await res.text());
+    }
+}
