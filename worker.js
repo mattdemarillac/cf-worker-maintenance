@@ -64,9 +64,9 @@ export default {
         if (!MAINTENANCE_ACTIVE) {
             const response = await fetch(request); // pass through normally
 
-            if (response.status >= ALERT_STATUS_THRESHOLD) {
-                ctx.waitUntil(handleErrorAlert(env, response.status, request.url));
-            }
+           // if (response.status >= ALERT_STATUS_THRESHOLD) {
+               //: ctx.waitUntil(handleErrorAlert(env, response.status, request.url));
+           // }
 
             return response;
         }
