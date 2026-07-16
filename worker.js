@@ -2,9 +2,6 @@
 // name = "maintenance-page"
 // main = "worker.js"
 //
-// [[kv_namespaces]]
-// binding = "OOBJ"
-// id = "f465847650734ea9b2bb986f0bc23628"
 
 // ── CONFIG ────────────────────────────────────────────────
 const MAINTENANCE_ACTIVE = false; // flip to true when upgrading
@@ -63,10 +60,6 @@ export default {
     async fetch(request, env, ctx) {
         if (!MAINTENANCE_ACTIVE) {
             const response = await fetch(request); // pass through normally
-
-           // if (response.status >= ALERT_STATUS_THRESHOLD) {
-               //: ctx.waitUntil(handleErrorAlert(env, response.status, request.url));
-           // }
 
             return response;
         }
